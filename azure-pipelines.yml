@@ -67,6 +67,7 @@ jobs:
         inputs:
           targetType: 'filePath'
           filePath: $(System.DefaultWorkingDirectory)\sample-adh-pi_to_adh_transfer_verification-powershell\GetData.ps1
+          workingDirectory: $(System.DefaultWorkingDirectory)\sample-adh-pi_to_adh_transfer_verification-powershell
         displayName: 'Run tests'
         
   - job: Code_Analysis
