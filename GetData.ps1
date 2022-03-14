@@ -14,6 +14,7 @@ $StreamId = $Appsettings.StreamId
 $StartIndex = $Appsettings.StartIndex
 $EndIndex = $Appsettings.EndIndex
 $DataArchiveName = $Appsettings.DataArchiveName
+$Username = $Appsettings.Username
 
 Function Get-ADHToken($TenantId, $Resource, $ClientId, $ClientSecret) {
     # Get the authentication endpoint from the discovery URL
@@ -29,7 +30,7 @@ Function Get-ADHToken($TenantId, $Resource, $ClientId, $ClientSecret) {
     }
 
     $TokenRequest = Invoke-WebRequest -Uri $TokenUrl -Body $TokenForm -Method Post -ContentType "application/x-www-form-urlencoded" -UseBasicParsing
-    $TokenBody = $TokenRequest | ConvertFrom-Json
+    $TokenBody = $TokenRequest.Content | ConvertFrom-Json
 
     Return $TokenBody.access_token
 }
@@ -40,8 +41,10 @@ Function ProcessDataset($Dataset, $Round) {
         if ($Dataset[$i].TimeStamp.GetType().Name -eq "String") {
             $Dataset[$i].TimeStamp = [datetime]::Parse($Dataset[$i].TimeStamp)
         }
+
         # Convert the timestamp to universal time
         $Dataset[$i].TimeStamp = $Dataset[$i].TimeStamp.ToUniversalTime()
+
         # If the value is a float then round to 5 digits
         if ($Round) {
             $Dataset[$i].Value = [math]::round($Dataset[$i].Value, 5)
@@ -53,7 +56,13 @@ Function ProcessDataset($Dataset, $Round) {
 
 # Create connection to PI Data Archive
 echo "Connecting to PI Data Archive"
-$Con = Connect-PIDataArchive -PIDataArchiveMachineName $DataArchiveName
+if ($Username -ne $null) {
+    $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username, $Password
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $DataArchiveName -WindowsCredential $Credential
+} else {
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $DataArchiveName
+}
 
 # Get PI Point configuration
 $PIpoint = Get-PIPoint -ID $PointId -AllAttributes -Connection $Con

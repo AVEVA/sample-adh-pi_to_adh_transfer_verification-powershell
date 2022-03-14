@@ -23,6 +23,10 @@ resources:
       type: git
       name: Engineering/OpsGuild.Automation
       ref: refs/heads/main
+    - repository: OpsGuildPipelineTools
+      type: git
+      name: Engineering/opsguild.pipeline-tools
+      ref: refs/heads/main
     - repository: templates
       type: github
       name: osisoft/OSI-Samples
@@ -42,17 +46,46 @@ jobs:
     pool:
       name: 00-OSIManaged-Containers
       demands: Agent.OS -equals $(agentOS)
+    variables:
+      - name: StartIndex
+        value: "2022-03-12T00:00:00Z"
+      - name: EndIndex
+        value: "2022-03-15T00:00:00Z"
+      - name: StreamId
+        value: "PI_" + $(DataArchiveName) + "_1"
     steps:
+      - checkout: self
+      - checkout: OpsGuildPipelineTools
+
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
-          secrets: 'TenantId, NamespaceId, ClientId, ClientSecret, DataArchiveName'
-
+          secrets: 'TenantId, NamespaceId, ClientId, ClientSecret, DataArchiveName, Username, Password'
+      
+      - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
+      
       - task: PowerShell@2
         inputs:
           targetType: 'filePath'
           filePath: $(System.DefaultWorkingDirectory)\GetData.ps1
         displayName: 'Run tests'
+        
+  - job: Code_Analysis
+    pool:
+      name: 00-OSIManaged-Containers
+      demands: Agent.OS -equals Windows_NT
+    steps:
+      - powershell: Install-Module -Name PSScriptAnalyzer -Force
+        displayName: Install code analyzer
+        
+      - powershell: Invoke-ScriptAnalyzer -EnableExit -Path GetToken.ps1
+        failOnStderr: true
+        displayName: Run analysis
 
   - template: '/miscellaneous/build_templates/code-analysis.yml@templates'
     parameters:
+      buildSteps:
+        - checkout: self
+        - checkout: OpsGuildPipelineTools
+
+        - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       skipPolaris: true
