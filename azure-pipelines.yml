@@ -52,7 +52,7 @@ jobs:
       - name: EndIndex
         value: "2022-03-15T00:00:00Z"
       - name: StreamId
-        value: "PI_" + $(DataArchiveName) + "_1"
+        value: $[format('PI_{0}_1', variables['DataArchiveName'])]
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
