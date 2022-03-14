@@ -34,6 +34,36 @@ Function Get-ADHToken($TenantId, $Resource, $ClientId, $ClientSecret) {
     Return $TokenBody.access_token
 }
 
+Function ProcessDataset($Dataset, $Round) {
+    for ($i = 0; $i -lt $Dataset.Count; $i++) {
+        # Parse the timestamp if it is a string
+        if ($Dataset[$i].TimeStamp.GetType().Name -eq "String") {
+            $Dataset[$i].TimeStamp = [datetime]::Parse($Dataset[$i].TimeStamp)
+        }
+        # Convert the timestamp to universal time
+        $Dataset[$i].TimeStamp = $Dataset[$i].TimeStamp.ToUniversalTime()
+        # If the value is a float then round to 5 digits
+        if ($Round) {
+            $Dataset[$i].Value = [math]::round($Dataset[$i].Value, 5)
+        }
+    }
+
+    Return $Dataset
+}
+
+# Create connection to PI Data Archive
+echo "Connecting to PI Data Archive"
+$Con = Connect-PIDataArchive -PIDataArchiveMachineName $DataArchiveName
+
+# Get PI Point configuration
+$PIpoint = Get-PIPoint -ID $PointId -AllAttributes -Connection $Con
+$Type = $PIpoint.Attributes.pointtype
+$Round = $false
+
+if ($Type -eq "Float16" -or $Type -eq "Float32" -or $Type -eq "Float64") {
+    $Round = $true
+}
+
 # Create an auth header
 echo "Retrieving token"
 $AuthHeader = @{
@@ -45,25 +75,20 @@ echo "Retrieving data from ADH"
 $BaseUrl = $Resource + "/api/" + $ApiVersion + "/Tenants/" + $TenantId + "/Namespaces/" + $NamespaceId
 $TenantRequest = Invoke-WebRequest -Uri ($BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $StartIndex + "&endIndex=" + $EndIndex) -Method Get -Headers $AuthHeader -UseBasicParsing
 
+# Output ADH data to file
 echo "Outputing ADH data to file"
 $ADHData = $TenantRequest.Content | ConvertFrom-Json
-# Parse and convert timestamps to universal time
-for ($i = 0; $i -lt $ADHData.Count; $i++) {$ADHData[$i].TimeStamp = [datetime]::Parse($ADHData[$i].TimeStamp).ToUniversalTime()}
+$ADHData = ProcessDataset $ADHData $Round
 $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation
-
-# Create connection to PI Data Archive
-echo "Connecting to PI Data Archive"
-$myPI = Connect-PIDataArchive -PIDataArchiveMachineName DFPIServerPrd.osisoft.ext
 
 # Retrieve data from PI Server
 echo "Retrieving data from PI Data Archive"
-$PIData = Get-PIValue -PointId $PointId -Connection $myPI -StartTime $StartIndex -EndTime $EndIndex
+$PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $StartIndex -Count $ADHData.Count
 
-# Convert timestamps to universal time
-$PIData  = $PIData | select Timestamp, Value
-for ($i = 0; $i -lt $PIData.Count; $i++) {$PIData[$i].TimeStamp = $PIData[$i].TimeStamp.ToUniversalTime()}
-
+# Output PI data to file
 echo "Outputing PI data to file"
+$PIData  = $PIData | select Timestamp, Value
+$PIData = ProcessDataset $PIData $Round
 $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
 echo "Complete!"
