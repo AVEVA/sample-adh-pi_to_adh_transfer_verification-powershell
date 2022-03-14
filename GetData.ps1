@@ -1,7 +1,7 @@
-﻿echo "Starting"
+﻿Write-Output "Starting"
 
 # Get needed variables
-echo "Reading appsettings"
+Write-Output "Reading appsettings"
 $Appsettings = Get-Content -Path appsettings.json | ConvertFrom-Json
 $TenantId = $Appsettings.TenantId
 $NamespaceId = $Appsettings.NamespaceId
@@ -55,9 +55,9 @@ Function ProcessDataset($Dataset, $Round) {
 }
 
 # Create connection to PI Data Archive
-echo "Connecting to PI Data Archive"
-if ($Username -ne $null) {
-    $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
+Write-Output "Connecting to PI Data Archive"
+if ($null -eq $Username) {
+    $Password = ConvertTo-SecureString -String $Appsettings.Password
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username, $Password
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $DataArchiveName -WindowsCredential $Credential
 } else {
@@ -74,30 +74,30 @@ if ($Type -eq "Float16" -or $Type -eq "Float32" -or $Type -eq "Float64") {
 }
 
 # Create an auth header
-echo "Retrieving token"
+Write-Output "Retrieving token"
 $AuthHeader = @{
-    Authorization = "Bearer " + (Get-ADHToken $TenantId $Resource $ClientId $ClientSecret)
+    Authorization = "Bearer " + (Get-ADHToken -TenantId $TenantId -Resource $Resource -ClientId $ClientId -ClientSecret $ClientSecret)
 }
 
 # Retrieve data from ADH
-echo "Retrieving data from ADH"
+Write-Output "Retrieving data from ADH"
 $BaseUrl = $Resource + "/api/" + $ApiVersion + "/Tenants/" + $TenantId + "/Namespaces/" + $NamespaceId
 $TenantRequest = Invoke-WebRequest -Uri ($BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $StartIndex + "&endIndex=" + $EndIndex) -Method Get -Headers $AuthHeader -UseBasicParsing
 
 # Output ADH data to file
-echo "Outputing ADH data to file"
+Write-Output "Outputing ADH data to file"
 $ADHData = $TenantRequest.Content | ConvertFrom-Json
-$ADHData = ProcessDataset $ADHData $Round
+$ADHData = ProcessDataset -Dataset $ADHData -Round $Round
 $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation
 
 # Retrieve data from PI Server
-echo "Retrieving data from PI Data Archive"
+Write-Output "Retrieving data from PI Data Archive"
 $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $StartIndex -Count $ADHData.Count
 
 # Output PI data to file
-echo "Outputing PI data to file"
-$PIData  = $PIData | select Timestamp, Value
-$PIData = ProcessDataset $PIData $Round
+Write-Output "Outputing PI data to file"
+$PIData  = $PIData | Select-Object Timestamp, Value
+$PIData = ProcessDataset -Dataset $PIData -Round $Round
 $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
-echo "Complete!"
+Write-Output "Complete!"
