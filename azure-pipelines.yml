@@ -63,12 +63,8 @@ jobs:
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
-      - task: NuGetCommand@2
+      - powershell: Install-Package OSIsoft.PISMT3.MSI -version 3.6.3.106
         displayName: 'Install SMT'
-        inputs:
-          command: 'restore'
-          feedsToUse: 'select'
-          vstsFeed: OSIsoft.PISMT3.MSI
       
       - powershell: |
           Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
