@@ -1,5 +1,5 @@
 ﻿Write-Output "Starting"
-Import-Module -Name %pihome%\OSIsoft.PowerShell -Verbose
+Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
 Get-Command -Module OSIsoft.PowerShell
 Get-Module
 
