@@ -84,6 +84,7 @@ $AuthHeader = @{
 # Retrieve data from ADH
 Write-Output "Retrieving data from ADH"
 $BaseUrl = $Resource + "/api/" + $ApiVersion + "/Tenants/" + $TenantId + "/Namespaces/" + $NamespaceId
+($BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $StartIndex + "&endIndex=" + $EndIndex)
 $TenantRequest = Invoke-WebRequest -Uri ($BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $StartIndex + "&endIndex=" + $EndIndex) -Method Get -Headers $AuthHeader -UseBasicParsing
 
 # Output ADH data to file
