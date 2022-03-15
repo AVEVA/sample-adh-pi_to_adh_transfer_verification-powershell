@@ -68,7 +68,6 @@ jobs:
         inputs:
           vstsFeed: 'Main'
           vstsFeedPackage: OSIsoft.PISMT3.MSI
-          vstsPackageVersion: 3.6.3.106
           downloadDirectory: $(System.DefaultWorkingDirectory)/SMTInstaller
         
       - script: $(System.DefaultWorkingDirectory)/SMTInstaller/OSIsoft.PISMT3.MSI
