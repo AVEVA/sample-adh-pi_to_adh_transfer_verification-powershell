@@ -1,5 +1,5 @@
 ﻿Write-Output "Starting"
-Import-Module OSIsoft.PowerShell
+Import-Module -Name %pihome%\OSIsoft.PowerShell -Verbose
 Get-Command -Module OSIsoft.PowerShell
 Get-Module
 
