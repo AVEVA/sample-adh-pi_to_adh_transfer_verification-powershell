@@ -63,7 +63,7 @@ jobs:
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
-      - script: |
+      - powershell: |
           Get-Command -Module OSIsoft.PowerShell
           Get-Module
         displayName: 'Setup environment'
