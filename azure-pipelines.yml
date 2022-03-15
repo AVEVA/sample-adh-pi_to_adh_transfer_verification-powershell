@@ -79,7 +79,7 @@ jobs:
       - task: PowerShell@2
         inputs:
           targetType: 'filePath'
-          filePath: $(System.DefaultWorkingDirectory)\sample-adh-pi_to_adh_transfer_verification-powershell\GetData.ps1
+          filePath: $(System.DefaultWorkingDirectory)\sample-adh-pi_to_adh_transfer_verification-powershell\Test.ps1
           workingDirectory: $(System.DefaultWorkingDirectory)\sample-adh-pi_to_adh_transfer_verification-powershell
         displayName: 'Run tests'
         
