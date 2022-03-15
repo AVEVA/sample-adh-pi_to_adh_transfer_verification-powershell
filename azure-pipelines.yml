@@ -56,22 +56,17 @@ jobs:
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
+      
+      - download: current
+        artifact: OSIsoft.PowerShell.MSIL.MSI
+      
+      - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
           secrets: 'TenantId, NamespaceId, ClientId, ClientSecret, DataArchiveName, Username, Password'
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
-      
-      - task: NuGetCommand@2
-        displayName: 'Restore Nuget'
-        inputs:
-          command: 'restore'
-          feedsToUse: 'select'
-          vstsFeed: OSIsoft.PISMT3.MSI
-      
-      - powershell: Install-Package OSIsoft.PISMT3.MSI
-        displayName: 'Install SMT'
       
       - powershell: |
           Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
