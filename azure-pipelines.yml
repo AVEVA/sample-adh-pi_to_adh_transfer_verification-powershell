@@ -71,8 +71,8 @@ jobs:
       - script: $(Agent.TempDirectory)/PIPowerShell_x86.msi
       
       - powershell: |
+          Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
           Get-Command -Module OSIsoft.PowerShell
-          Get-Module
         displayName: 'Setup environment'
 
       - task: PowerShell@2
