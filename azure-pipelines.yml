@@ -63,6 +63,13 @@ jobs:
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
+      - task: NuGetCommand@2
+        displayName: 'Restore Nuget'
+        inputs:
+          command: 'restore'
+          feedsToUse: 'select'
+          vstsFeed: OSIsoft.PISMT3.MSI
+      
       - powershell: Install-Package OSIsoft.PISMT3.MSI
         displayName: 'Install SMT'
       
