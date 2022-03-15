@@ -1,4 +1,5 @@
 ﻿Write-Output "Starting"
+Import-Module OSIsoft.PowerShell
 Get-Command -Module OSIsoft.PowerShell
 Get-Module
 
