@@ -63,6 +63,13 @@ jobs:
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
+      - task: DownloadSecureFile@1
+        inputs:
+          secureFile: PIPowerShell_x86.msi
+        displayName: 'Download PIPowerShell'
+        
+      - script: $(Agent.TempDirectory)/PIPowerShell_x86.msi
+      
       - powershell: |
           Get-Command -Module OSIsoft.PowerShell
           Get-Module
