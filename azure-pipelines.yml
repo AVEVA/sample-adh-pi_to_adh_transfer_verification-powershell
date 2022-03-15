@@ -69,6 +69,7 @@ jobs:
         displayName: 'Download PIPowerShell'
         
       - script: $(Agent.TempDirectory)/PIPowerShell_x86.msi
+        displayName: 'Install PIPowerShell'
       
       - powershell: |
           Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
