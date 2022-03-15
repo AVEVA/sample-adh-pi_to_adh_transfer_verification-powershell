@@ -1,4 +1,10 @@
 ﻿Write-Output "Starting"
+cd 'C:\Program Files (x86)'
+ls
+cd 'C:\Program Files (x86)\PIPC'
+ls
+cd 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell'
+ls
 Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell' -Verbose
 Get-Command -Module OSIsoft.PowerShell
 Get-Module
