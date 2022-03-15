@@ -1,4 +1,6 @@
 ﻿Write-Output "Starting"
+Get-Command -Module OSIsoft.PowerShell
+Get-Module
 
 # Get needed variables
 Write-Output "Reading appsettings"
