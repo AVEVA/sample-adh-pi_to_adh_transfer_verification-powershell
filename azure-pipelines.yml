@@ -63,12 +63,15 @@ jobs:
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
-      - task: DownloadSecureFile@1
+      - task: UniversalPackages@0
+        displayName: 'AF SDK download'
         inputs:
-          secureFile: PIPowerShell_x86.msi
-        displayName: 'Download PIPowerShell'
+          vstsFeed: 'Main'
+          vstsFeedPackage: OSIsoft.PISMT3.MSI
+          vstsPackageVersion: 3.6.3.106
+          downloadDirectory: $(System.DefaultWorkingDirectory)/SMTInstaller
         
-      - script: $(Agent.TempDirectory)/PIPowerShell_x86.msi
+      - script: $(System.DefaultWorkingDirectory)/SMTInstaller/OSIsoft.PISMT3.MSI
         displayName: 'Install PIPowerShell'
       
       - powershell: |
