@@ -1,6 +1,6 @@
 # Import module
 Write-Output "Importing module"
-Import-Module OSIsoft.PowerShell
+Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell'
 Get-Command -Module OSIsoft.PowerShell
 
 #Run script
