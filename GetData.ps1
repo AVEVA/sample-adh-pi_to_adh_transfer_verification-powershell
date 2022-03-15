@@ -1,6 +1,4 @@
 ﻿Write-Output "Starting"
-Import-Module -Name 'C:\Program Files (x86)\PIPC\OSIsoft.PowerShell'
-Get-Command -Module OSIsoft.PowerShell
 
 # Get needed variables
 Write-Output "Reading appsettings"
@@ -49,7 +47,7 @@ Function ProcessDataset($Dataset, $Round) {
 
         # If the value is a float then round to 5 digits
         if ($Round) {
-            $Dataset[$i].Value = [math]::round($Dataset[$i].Value, 5)
+            $Dataset[$i].Value = [math]::round($Dataset[$i].Value, 3)
         }
     }
 
