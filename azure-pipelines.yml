@@ -57,10 +57,15 @@ jobs:
       - checkout: self
       - checkout: OpsGuildPipelineTools
       
-      - download: current
-        artifact: OSIsoft.PISMT3.MSI
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          source: 'specific'
+          artifact: OSIsoft.PowerShell.MSIL.MSI
+          project: 'PIPowerShell-Chili-YAML-Release'
+          pipeline: 12
+          runVersion: 'latest'
       
-      - powershell: $(Pipeline.Workspace)/OSIsoft.PISMT3.MSI
+      - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
