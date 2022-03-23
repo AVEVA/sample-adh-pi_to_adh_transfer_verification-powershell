@@ -67,12 +67,12 @@ jobs:
           downloadPath: '$(Pipeline.Workspace)'
       
       - powershell: |
-        cd $(Pipeline.Workspace)
-        ls
+          cd $(Pipeline.Workspace)
+          ls
       
       - powershell: | 
-        cd OSIsoft.PowerShell.MSIL.MSI
-        ls
+          cd OSIsoft.PowerShell.MSIL.MSI
+          ls
       
       - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
 
