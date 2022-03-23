@@ -61,7 +61,7 @@ jobs:
         inputs:
           source: 'specific'
           artifact: OSIsoft.PowerShell.MSIL.MSI
-          project: 'PIPowerShell-Chili-YAML-Release'
+          project: 'pi-powershell-lts'
           pipeline: 3211
           runVersion: 'latest'
       
