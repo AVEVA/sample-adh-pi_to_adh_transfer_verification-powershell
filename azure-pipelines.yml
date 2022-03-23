@@ -58,9 +58,9 @@ jobs:
       - checkout: OpsGuildPipelineTools
       
       - download: current
-        artifact: OSIsoft.PowerShell.MSIL.MSI
+        artifact: OSIsoft.PISMT3.MSI
       
-      - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
+      - powershell: $(Pipeline.Workspace)/OSIsoft.PISMT3.MSI
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
