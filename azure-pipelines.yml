@@ -62,7 +62,7 @@ jobs:
           packageType: 'nuget'
           feed: 'Main'
           definition: 'OSIsoft.PowerShell.MSIL.MSI' # Can also be package name
-          version: '3.6.3.106'
+          version: '2.2.2.255'
           extract: true
           downloadPath: '$(Pipeline.Workspace)'
       
