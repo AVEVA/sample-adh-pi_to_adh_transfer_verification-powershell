@@ -47,10 +47,6 @@ jobs:
       name: 00-OSIManaged-Containers
       demands: Agent.OS -equals $(agentOS)
     variables:
-      - name: StartIndex
-        value: ${{ '2022-03-12T00:00:00Z' }}
-      - name: EndIndex
-        value: ${{ '2022-03-15T00:00:00Z' }}
       - name: StreamId
         value: 'PI_$(DataArchiveName)_1'
     steps:
