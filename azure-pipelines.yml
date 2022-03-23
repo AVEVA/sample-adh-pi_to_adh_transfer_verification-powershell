@@ -74,7 +74,7 @@ jobs:
           cd OSIsoft.PowerShell.MSIL.MSI
           ls
       
-      - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
+      - powershell: $(Pipeline.Workspace)/Content/MSI/PIPowerShell/PIPowerShell_x86.msi
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
