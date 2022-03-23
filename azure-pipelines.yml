@@ -62,7 +62,7 @@ jobs:
           source: 'specific'
           artifact: OSIsoft.PowerShell.MSIL.MSI
           project: 'PIPowerShell-Chili-YAML-Release'
-          pipeline: 12
+          pipeline: 3211
           runVersion: 'latest'
       
       - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
