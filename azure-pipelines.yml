@@ -61,18 +61,10 @@ jobs:
         inputs:
           packageType: 'nuget'
           feed: 'Main'
-          definition: 'OSIsoft.PISMT3.MSI' # Can also be package name
+          definition: 'OSIsoft.PowerShell.MSIL.MSI' # Can also be package name
           version: '3.6.3.106'
           extract: true
-          downloadPath: '$(System.ArtifactsDirectory)'
-      
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          source: 'specific'
-          artifact: OSIsoft.PowerShell.MSIL.MSI
-          project: 'pi-powershell-lts'
-          pipeline: 3211
-          runVersion: 'latest'
+          downloadPath: '$(Pipeline.Workspace)'
       
       - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
 
