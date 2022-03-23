@@ -65,16 +65,10 @@ jobs:
           version: '2.2.2.255'
           extract: true
           downloadPath: '$(Pipeline.Workspace)'
-      
-      - powershell: |
-          cd $(Pipeline.Workspace)
-          ls
-      
-      - powershell: | 
-          cd OSIsoft.PowerShell.MSIL.MSI
-          ls
+        displayName: 'Get PI Powershell'
       
       - powershell: $(Pipeline.Workspace)/Content/MSI/PIPowerShell/PIPowerShell_x86.msi
+        displayName: 'Install PI Powershell'
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
