@@ -66,6 +66,14 @@ jobs:
           extract: true
           downloadPath: '$(Pipeline.Workspace)'
       
+      - powershell: |
+        cd $(Pipeline.Workspace)
+        ls
+      
+      - powershell: | 
+        cd OSIsoft.PowerShell.MSIL.MSI
+        ls
+      
       - powershell: $(Pipeline.Workspace)/OSIsoft.PowerShell.MSIL.MSI
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
