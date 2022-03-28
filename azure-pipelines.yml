@@ -70,7 +70,7 @@ jobs:
 
       - template: '/miscellaneous/build_templates/appsettings.yml@templates'
         parameters:
-          secrets: 'TenantId, NamespaceId, ClientId, ClientSecret, DataArchiveName, Username, Password'
+          secrets: 'TenantId, NamespaceId, Resource, ClientId, ClientSecret, DataArchiveName, Username, Password'
       
       - template: '/Templates/Utilities/InstallAFSDK.step.v0.yml@OpsGuildPipelineTools'
       
