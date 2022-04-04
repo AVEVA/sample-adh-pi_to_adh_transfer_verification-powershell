@@ -71,14 +71,21 @@ foreach ($PointId in $Appsettings.PointIds) {
     $Round = $RoundedTypes -contains $PIpoint.Attributes.pointtype
 
     # Retrieve data from ADH
-    # Note: the maximum number of events returned by an SDS data call is 250,000. However, there are paginated data calls if more data is needed.
+    # Note: the maximum number of events returned by an SDS data call is 250,000. However, we are using paginated data calls to get many more events over multiple calls.
     # See https://docs.osisoft.com/bundle/data-hub/page/developer-guide/sequential-data-store-dev/sds-read-data.html for more information.
     Write-Output "Retrieving data from ADH"
     $BaseUrl = $Appsettings.Resource + "/api/" + $Appsettings.ApiVersion + "/Tenants/" + $Appsettings.TenantId + "/Namespaces/" + $Appsettings.NamespaceId
-    $StreamId = If ($null -eq $Appsettings.DataArchiveAlias) {"PI_" + $Appsettings.DataArchiveName + "_" + $PointId} Else {"PI_" + $Appsettings.DataArchiveAlias + "_" + $PointId} 
-    $StreamUrl = $BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex
-    $TenantRequest = Invoke-WebRequest -Uri $StreamUrl -Method Get -Headers $AuthHeader -UseBasicParsing
-    $ADHData = $TenantRequest.Content | ConvertFrom-Json
+    $StreamId = If ($null -eq $Appsettings.DataArchiveAlias) {"PI_" + $Appsettings.DataArchiveName + "_" + $PointId} Else {"PI_" + $Appsettings.DataArchiveAlias + "_" + $PointId}
+    $StreamUrl = $BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex + "&count=250000&continuationToken="
+    $ADHData = @()
+    $ContinuationToken = ""
+    Do {
+        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $AuthHeader -UseBasicParsing
+        $RequestContent = $TenantRequest.Content | ConvertFrom-Json
+
+        $ADHData += $RequestContent.Results
+        $ContinuationToken = $RequestContent.ContinuationToken
+    } While ($null -ne $ContinuationToken)
 
     # Process data
     $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
