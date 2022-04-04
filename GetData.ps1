@@ -7,7 +7,7 @@ $Appsettings = Get-Content -Path appsettings.json | ConvertFrom-Json
 # Define the number of digits after the decimal point to round float data to
 $NumDigits = 3
 # A list of types that need to be rounded
-$RoundedTypes = @("Float16", "Float32", "Float64")
+$RoundedTypes = "Float16", "Float32", "Float64"
 
 Function Get-ADHToken($Resource, $ClientId, $ClientSecret) {
     # Get the authentication endpoint from the discovery URL
@@ -28,7 +28,7 @@ Function Get-ADHToken($Resource, $ClientId, $ClientSecret) {
     Return $TokenBody.access_token
 }
 
-Function ProcessDataset([ref]$Dataset, $Round) {
+Function ProcessDataset($Dataset, $Round) {
     for ($i = 0; $i -lt $Dataset.Count; $i++) {
         # Parse the timestamp if it is a string
         if ($Dataset[$i].TimeStamp.GetType().Name -eq "String") {
@@ -43,6 +43,8 @@ Function ProcessDataset([ref]$Dataset, $Round) {
             $Dataset[$i].Value = [math]::round($Dataset[$i].Value, $NumDigits)
         }
     }
+
+    return $Dataset
 }
 
 # Create connection to PI Data Archive
@@ -76,7 +78,7 @@ $TenantRequest = Invoke-WebRequest -Uri $StreamUrl -Method Get -Headers $AuthHea
 # Output ADH data to file
 Write-Output "Outputing ADH data to file"
 $ADHData = $TenantRequest.Content | ConvertFrom-Json
-ProcessDataset -Dataset ([ref]$ADHData) -Round $Round
+$ADHData = ProcessDataset -Dataset $ADHData -Round $Round
 $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation
 
 # Retrieve data from PI Server
@@ -88,7 +90,7 @@ $PIData = Get-PIValue -PointId $Appsettings.PointId -Connection $Con -StartTime 
 # Output PI data to file
 Write-Output "Outputing PI data to file"
 $PIData  = $PIData | Select-Object Timestamp, Value
-$PIData = ProcessDataset -Dataset ([ref]$PIData) -Round $Round
+$PIData = ProcessDataset -Dataset $PIData -Round $Round
 $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
 Write-Output "Complete!"
