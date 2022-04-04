@@ -43,7 +43,7 @@ AVEVA Data Hub is secured by obtaining tokens from its identity endpoint. Client
     "PointIds": [1,2],                                                           // List of PI Point Ids to retrieve data for. These get automatically translated into corresponding Stream Ids
     "StartIndex": "2022-03-12T00:00:00Z",                                        // Timestamp to start pulling data at in ISO 8601 format
     "EndIndex": "2022-03-15T00:00:00Z",                                          // Timestamp to stop pulling data at in ISO 8601 format
-	"DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",  // Optional parameter used if the server name in your Stream Ids is different than the DataArchiveName
+    "DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",  // Optional parameter used if the server name in your Stream Ids is different than the DataArchiveName
     "Username": "TEST_ONLY",                                                     // Username to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
     "Password": "TEST_ONLY"                                                      // Password to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
 }
