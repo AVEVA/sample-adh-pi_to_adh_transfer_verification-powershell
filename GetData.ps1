@@ -40,11 +40,11 @@ Function ProcessDataset($Dataset, $Round) {
 
         # If the value is a float then round digits
         if ($Round) {
-            $Dataset[$i].Value = [math]::round($Dataset[$i].Value, $NumDigits)
+            $Dataset[$i].Value = [math]::Round($Dataset[$i].Value, $NumDigits)
         }
     }
 
-    return $Dataset
+    Return $Dataset
 }
 
 # Create connection to PI Data Archive
@@ -62,9 +62,6 @@ Write-Output "Retrieving token"
 $AuthHeader = @{
     Authorization = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret)
 }
-
-$ADHDataAggregate = @()
-$PIDataAggregate = @()
 
 # Collect data for each Id
 foreach ($PointId in $Appsettings.PointIds) {
@@ -86,7 +83,6 @@ foreach ($PointId in $Appsettings.PointIds) {
     # Process data
     $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
     $ADHData = ProcessDataset -Dataset $ADHData -Round $Round
-    $ADHDataAggregate += ($ADHData)
 
     # Retrieve data from PI Server
     # Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
@@ -95,17 +91,18 @@ foreach ($PointId in $Appsettings.PointIds) {
     $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
 
     # Process data
-    $PIData  = $PIData | Select-Object StreamId, Timestamp, Value
-    $PIData = ProcessDataset -Dataset $PIData -Round $Round
-    $PIDataAggregate += $PIData
+    $PIData  = $PIData | Select-Object StreamId, Timestamp, @{Name="Value"; Expression={If ($_.Value.GetType() -eq [OSIsoft.PI.Net.EventState]) {$_.Value.get_StateSet()} else {$_.Value}}}
+    $PIData  = ProcessDataset -Dataset $PIData -Round $Round
+
+    # Append ADH data to file
+    Write-Output "Outputing ADH data to file"
+    $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation -Append
+
+    # Append PI data to file
+    Write-Output "Outputing PI data to file"
+    $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation -Append
 }
 
-# Output ADH data to file
-Write-Output "Outputing ADH data to file"
-$ADHDataAggregate | Export-Csv -Path .\adh_data.csv -NoTypeInformation
 
-# Output PI data to file
-Write-Output "Outputing PI data to file"
-$PIDataAggregate | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
 Write-Output "Complete!"
