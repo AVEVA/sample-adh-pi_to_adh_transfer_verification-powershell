@@ -57,40 +57,55 @@ if ($null -eq $Appsettings.Username) {
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential
 }
 
-# Get PI Point configuration
-$PIpoint = Get-PIPoint -ID $Appsettings.PointId -Attributes pointtype -Connection $Con
-$Round = $RoundedTypes -contains $PIpoint.Attributes.pointtype
-
 # Create an auth header
 Write-Output "Retrieving token"
 $AuthHeader = @{
     Authorization = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret)
 }
 
-# Retrieve data from ADH
-# Note: the maximum number of events returned by an SDS data call is 250,000. However, there are paginated data calls if more data is needed.
-# See https://docs.osisoft.com/bundle/data-hub/page/developer-guide/sequential-data-store-dev/sds-read-data.html for more information.
-Write-Output "Retrieving data from ADH"
-$BaseUrl = $Appsettings.Resource + "/api/" + $Appsettings.ApiVersion + "/Tenants/" + $Appsettings.TenantId + "/Namespaces/" + $Appsettings.NamespaceId
-$StreamUrl = $BaseUrl + "/Streams/" + $Appsettings.StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex
-$TenantRequest = Invoke-WebRequest -Uri $StreamUrl -Method Get -Headers $AuthHeader -UseBasicParsing
+$ADHDataAggregate = @()
+$PIDataAggregate = @()
+
+# Collect data for each Id
+foreach ($PointId in $Appsettings.PointIds) {
+
+    # Get PI Point configuration
+    $PIpoint = Get-PIPoint -ID $PointId -Attributes pointtype -Connection $Con
+    $Round = $RoundedTypes -contains $PIpoint.Attributes.pointtype
+
+    # Retrieve data from ADH
+    # Note: the maximum number of events returned by an SDS data call is 250,000. However, there are paginated data calls if more data is needed.
+    # See https://docs.osisoft.com/bundle/data-hub/page/developer-guide/sequential-data-store-dev/sds-read-data.html for more information.
+    Write-Output "Retrieving data from ADH"
+    $BaseUrl = $Appsettings.Resource + "/api/" + $Appsettings.ApiVersion + "/Tenants/" + $Appsettings.TenantId + "/Namespaces/" + $Appsettings.NamespaceId
+    $StreamId = If ($null -eq $Appsettings.DataArchiveAlias) {"PI_" + $Appsettings.DataArchiveName + "_" + $PointId} Else {"PI_" + $Appsettings.DataArchiveAlias + "_" + $PointId} 
+    $StreamUrl = $BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex
+    $TenantRequest = Invoke-WebRequest -Uri $StreamUrl -Method Get -Headers $AuthHeader -UseBasicParsing
+    $ADHData = $TenantRequest.Content | ConvertFrom-Json
+
+    # Process data
+    $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
+    $ADHData = ProcessDataset -Dataset $ADHData -Round $Round
+    $ADHDataAggregate += ($ADHData)
+
+    # Retrieve data from PI Server
+    # Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
+    # See the REAME for more information.
+    Write-Output "Retrieving data from PI Data Archive"
+    $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
+
+    # Process data
+    $PIData  = $PIData | Select-Object StreamId, Timestamp, Value
+    $PIData = ProcessDataset -Dataset $PIData -Round $Round
+    $PIDataAggregate += $PIData
+}
 
 # Output ADH data to file
 Write-Output "Outputing ADH data to file"
-$ADHData = $TenantRequest.Content | ConvertFrom-Json
-$ADHData = ProcessDataset -Dataset $ADHData -Round $Round
-$ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation
-
-# Retrieve data from PI Server
-# Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
-# See the REAME for more information.
-Write-Output "Retrieving data from PI Data Archive"
-$PIData = Get-PIValue -PointId $Appsettings.PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
+$ADHDataAggregate | Export-Csv -Path .\adh_data.csv -NoTypeInformation
 
 # Output PI data to file
 Write-Output "Outputing PI data to file"
-$PIData  = $PIData | Select-Object Timestamp, Value
-$PIData = ProcessDataset -Dataset $PIData -Round $Round
-$PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
+$PIDataAggregate | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
 Write-Output "Complete!"

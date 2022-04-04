@@ -40,10 +40,11 @@ AVEVA Data Hub is secured by obtaining tokens from its identity endpoint. Client
     "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_IDENTIFIER",
     "ClientSecret": "PLACEHOLDER_REPLACE_WITH_CLIENT_SECRET",
     "DataArchiveName": "PLACEHOLDER_DATA_ARCHIVE_NAME",
-    "PointId": 1,
+    "PointIds": [1,2],
     "StreamId": "PLACEHOLDER_REPLACE_WITH_STREAM_ID",
     "StartIndex": "2022-03-12T00:00:00Z",
     "EndIndex": "2022-03-15T00:00:00Z",
+	"DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",
     "Username": "PLACEHOLDER_REPLACE_WITH_USERNAME_TEST_ONLY",
     "Password": "PLACEHOLDER_REPLACE_WITH_PASSWORD_TEST_ONLY"
 }
