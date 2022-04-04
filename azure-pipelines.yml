@@ -46,11 +46,6 @@ jobs:
     pool:
       name: 00-OSIManaged-Containers
       demands: Agent.OS -equals $(agentOS)
-    variables:
-      - name: PointId
-        value: 1
-      - name: StreamId
-        value: 'PI_$(DataArchiveName)_1'
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
