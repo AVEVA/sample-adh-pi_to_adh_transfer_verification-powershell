@@ -50,7 +50,7 @@ Write-Output "Connecting to PI Data Archive"
 if ($null -eq $Appsettings.Username) {
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName
 } else {
-    $Password = ConvertTo-SecureString -String $Appsettings.Password
+    $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Appsettings.Username, $Password
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential
 }
