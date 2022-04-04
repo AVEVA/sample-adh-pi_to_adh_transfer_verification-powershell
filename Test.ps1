@@ -38,7 +38,7 @@ if ($PIData.Count -ne $ADHData.Count) {
 }
 
 # Check that the data in both datasets matches
-0..($PIData.Count-1) | % {
+for ($i = 0; $i -lt $PIData.Count; $i++) {
     if ($PIData[$i].TimeStamp -ne $ADHData[$i].TimeStamp) {
         Write-Output "Timestamp mismatch!"
         Write-Output "Index: " + $i

@@ -29,18 +29,18 @@ Function Get-ADHToken($Resource, $ClientId, $ClientSecret) {
 }
 
 Function ProcessDataset([ref]$Dataset, $Round) {
-    0..($Dataset.Count-1) | % {
+    for ($i = 0; $i -lt $Dataset.Count; $i++) {
         # Parse the timestamp if it is a string
-        if ($Dataset[$_].TimeStamp.GetType().Name -eq "String") {
-            $Dataset[$_].TimeStamp = [datetime]::Parse($Dataset[$_].TimeStamp)
+        if ($Dataset[$i].TimeStamp.GetType().Name -eq "String") {
+            $Dataset[$i].TimeStamp = [datetime]::Parse($Dataset[$i].TimeStamp)
         }
 
         # Convert the timestamp to universal time
-        $Dataset[$_].TimeStamp = $Dataset[$_].TimeStamp.ToUniversalTime()
+        $Dataset[$i].TimeStamp = $Dataset[$i].TimeStamp.ToUniversalTime()
 
         # If the value is a float then round digits
         if ($Round) {
-            $Dataset[$_].Value = [math]::round($Dataset[$_].Value, $NumDigits)
+            $Dataset[$i].Value = [math]::round($Dataset[$i].Value, $NumDigits)
         }
     }
 }
