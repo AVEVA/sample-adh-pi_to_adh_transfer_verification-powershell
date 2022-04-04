@@ -1,10 +1,8 @@
-# sample-adh-pi_to_adh_transfer_verification-powershell
-
 # PI to AVEVA Data Hub Transfer Verification Sample
 
 **Version:** 1.0.0  
   
-[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/PI-System/AF-SDK-Getting-Started-Guide?repoName=osisoft%2FAF-SDK-Getting-Started-Guide&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=2251&repoName=osisoft%2FAF-SDK-Getting-Started-Guide&branchName=main)
+[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/osisoft.sample-adh-pi_to_adh_transfer_verification-powershell?repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=refs%2Fpull%2F1%2Fmerge)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=4668&repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=refs%2Fpull%2F1%2Fmerge)
 
 Developed against PowerShell 5.1
 
@@ -13,15 +11,15 @@ Developed against PowerShell 5.1
 - PowerShell 5.1+
 - PowerShell Tools for the PI System (Included with the PI System Management Tools 2015 and later)
 - Register a [Client-Credentials Client](https://datahub.connect.aveva/clients) in your AVEVA Data Hub tenant and create a client secret to use in the configuration of this sample. ([Video Walkthrough](https://www.youtube.com/watch?v=JPWy0ZX9niU))
-  - __NOTE__: This sample only requires the `Tenant Member` role to run successfully 
+  - __NOTE__: By default, this sample only requires the `Tenant Member` role or a role with read access to the stream specified in [appsettings.json](appsettings.placeholder.json) to run successfully 
     - see: ['Authorization Allowed for these roles' in the documentation](https://docs.osisoft.com/bundle/ocs/page/api-reference/tenant/tenant-tenants.html#get-tenant) 
   - It is strongly advised to not elevate the permissions of a client beyond what is necessary.
 
 ## About this sample
 
-This sample can be used to compare data stored in a PI Data Archive to data writen to AVEVA Data Hub through the PI to AVEVA Data Hub agent.   
+This sample can be used to compare data stored in a PI Data Archive to data writen to AVEVA Data Hub through the PI to AVEVA Data Hub agent. This can be used to easily confirm all intended data was sent successfully by the PI to ADH agent.   
 
-The sample retrieves data between the StartIndex and EndIndex for the Stream with StreamId and PI Point with PointId specified in [appsettings.json](appsettings.placeholder.json) and writes them to csv files adh_data.csv and pi_data.csv respectively. If the data is of type float, the application rounds the data to three decimal places to account for the difference in how the two datasources format floating point data.  
+The sample retrieves data between the StartIndex and EndIndex for the Stream with StreamId and PI Point with PointId specified in [appsettings.json](appsettings.placeholder.json). The data is then written to csv files adh_data.csv and pi_data.csv respectively. If the data is of type float, the application rounds the data to three decimal places to account for the difference in how the two datasources format floating point data. The function used to pull data from the PI Data Archive uses a count equal to the number of events retruned from ADH to ensure that missing snapshot data does not give the appearance of a dropped event. When compression is enabled on a PI Point, the PI to ADH agent only sends archived data.  
 
 Once the data is writen to adh_data.csv and pi_data.csv, the data can be compared in your preffered spreadsheet application or [Test.ps1](Test.ps1) can be adapted to do the comparison automatically using PowerShell.
 
@@ -39,8 +37,8 @@ AVEVA Data Hub is secured by obtaining tokens from its identity endpoint. Client
     "ApiVersion": "v1",
     "TenantId": "PLACEHOLDER_REPLACE_WITH_TENANT_ID",
     "NamespaceId": "PLACEHOLDER_REPLACE_WITH_NAMESPACE_ID",
-    "ClientId": "PLACEHOLDER_REPLACE_WITH_APPLICATION_IDENTIFIER",
-    "ClientSecret": "PLACEHOLDER_REPLACE_WITH_APPLICATION_SECRET",
+    "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_IDENTIFIER",
+    "ClientSecret": "PLACEHOLDER_REPLACE_WITH_CLIENT_SECRET",
     "DataArchiveName": "PLACEHOLDER_DATA_ARCHIVE_NAME",
     "PointId": 1,
     "StreamId": "PLACEHOLDER_REPLACE_WITH_STREAM_ID",
