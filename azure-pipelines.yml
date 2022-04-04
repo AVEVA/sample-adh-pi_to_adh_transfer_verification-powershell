@@ -94,7 +94,7 @@ jobs:
       - powershell: Install-Module -Name PSScriptAnalyzer -Force
         displayName: Install code analyzer
         
-      - powershell: Invoke-ScriptAnalyzer -EnableExit -Path GetData.ps1
+      - powershell: Invoke-ScriptAnalyzer -EnableExit -ExcludeRule PSAvoidUsingConvertToSecureStringWithPlainText -Path GetData.ps1
         failOnStderr: true
         displayName: Run analysis
 

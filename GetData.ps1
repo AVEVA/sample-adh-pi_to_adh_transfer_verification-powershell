@@ -76,7 +76,7 @@ $TenantRequest = Invoke-WebRequest -Uri $StreamUrl -Method Get -Headers $AuthHea
 # Output ADH data to file
 Write-Output "Outputing ADH data to file"
 $ADHData = $TenantRequest.Content | ConvertFrom-Json
-ProcessDataset -Dataset $ADHData -Round $Round
+ProcessDataset -Dataset ([ref]$ADHData) -Round $Round
 $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation
 
 # Retrieve data from PI Server
@@ -88,7 +88,7 @@ $PIData = Get-PIValue -PointId $Appsettings.PointId -Connection $Con -StartTime 
 # Output PI data to file
 Write-Output "Outputing PI data to file"
 $PIData  = $PIData | Select-Object Timestamp, Value
-$PIData = ProcessDataset -Dataset $PIData -Round $Round
+$PIData = ProcessDataset -Dataset ([ref]$PIData) -Round $Round
 $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation
 
 Write-Output "Complete!"
