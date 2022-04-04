@@ -33,20 +33,19 @@ AVEVA Data Hub is secured by obtaining tokens from its identity endpoint. Client
 
 ```json
 {
-    "Resource": "https://uswe.datahub.connect.aveva.com",
-    "ApiVersion": "v1",
-    "TenantId": "PLACEHOLDER_REPLACE_WITH_TENANT_ID",
-    "NamespaceId": "PLACEHOLDER_REPLACE_WITH_NAMESPACE_ID",
-    "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_IDENTIFIER",
-    "ClientSecret": "PLACEHOLDER_REPLACE_WITH_CLIENT_SECRET",
-    "DataArchiveName": "PLACEHOLDER_DATA_ARCHIVE_NAME",
-    "PointIds": [1,2],
-    "StreamId": "PLACEHOLDER_REPLACE_WITH_STREAM_ID",
-    "StartIndex": "2022-03-12T00:00:00Z",
-    "EndIndex": "2022-03-15T00:00:00Z",
-	"DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",
-    "Username": "PLACEHOLDER_REPLACE_WITH_USERNAME_TEST_ONLY",
-    "Password": "PLACEHOLDER_REPLACE_WITH_PASSWORD_TEST_ONLY"
+    "Resource": "https://uswe.datahub.connect.aveva.com",                        // URL of ADH (Do not change if you are unsure)
+    "ApiVersion": "v1",                                                          // Api version used in ADH (Do not change if you are unsure)
+    "TenantId": "PLACEHOLDER_REPLACE_WITH_TENANT_ID",                            // Id of your ADH Tenant
+    "NamespaceId": "PLACEHOLDER_REPLACE_WITH_NAMESPACE_ID",                      // Id of Namespace in your ADH Tenant where the streams reside
+    "ClientId": "PLACEHOLDER_REPLACE_WITH_CLIENT_IDENTIFIER",                    // Client Id to use when connecting to ADH
+    "ClientSecret": "PLACEHOLDER_REPLACE_WITH_CLIENT_SECRET",                    // Client secret to use when connecting to ADH
+    "DataArchiveName": "PLACEHOLDER_DATA_ARCHIVE_NAME",                          // Name of Data Archive to retrieve data from
+    "PointIds": [1,2],                                                           // List of PI Point Ids to retrieve data for. These get automatically translated into corresponding Stream Ids
+    "StartIndex": "2022-03-12T00:00:00Z",                                        // Timestamp to start pulling data at in ISO 8601 format
+    "EndIndex": "2022-03-15T00:00:00Z",                                          // Timestamp to stop pulling data at in ISO 8601 format
+	"DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",  // Optional parameter used if the server name in your Stream Ids is different than the DataArchiveName
+    "Username": "TEST_ONLY",                                                     // Username to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
+    "Password": "TEST_ONLY"                                                      // Password to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
 }
 ```
 
