@@ -1,4 +1,4 @@
-﻿param([String]$FileSuffix = (Get-Date -Format "yyyy-MM-dd-HH-mm-ss")) 
+﻿param([String]$FileSuffix = (Get-Date -Format "yyyy-MM-dd-HH-mm-ss"))
 
 Write-Output "Starting"
 
