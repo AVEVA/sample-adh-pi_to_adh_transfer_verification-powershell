@@ -1,11 +1,13 @@
-﻿Write-Output "Starting"
+﻿param([String]$FileSuffix = (Get-Date -Format "yyyy-MM-dd-HH-mm-ss")) 
+
+Write-Output "Starting"
 
 # Read appsettings
 Write-Output "Reading appsettings"
 $Appsettings = Get-Content -Path appsettings.json | ConvertFrom-Json
 
 # Define the number of digits after the decimal point to round float data to
-$NumDigits = 3
+$NumDigits = 6
 # A list of types that need to be rounded
 $RoundedTypes = "Float16", "Float32", "Float64"
 
@@ -87,27 +89,30 @@ foreach ($PointId in $Appsettings.PointIds) {
         $ContinuationToken = $RequestContent.ContinuationToken
     } While ($null -ne $ContinuationToken)
 
-    # Process data
-    $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
-    $ADHData = ProcessDataset -Dataset $ADHData -Round $Round
+    # Continue if any data was retrieved
+    if($ADHData.Count -gt 0) {
+        # Process data
+        $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
+        $ADHData = ProcessDataset -Dataset $ADHData -Round $Round
 
-    # Retrieve data from PI Server
-    # Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
-    # See the REAME for more information.
-    Write-Output "Retrieving data from PI Data Archive"
-    $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
+        # Retrieve data from PI Server
+        # Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
+        # See the README for more information.
+        Write-Output "Retrieving data from PI Data Archive"
+        $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
 
-    # Process data
-    $PIData  = $PIData | Select-Object StreamId, Timestamp, @{Name="Value"; Expression={If ($_.Value.GetType() -eq [OSIsoft.PI.Net.EventState]) {$_.Value.get_StateSet()} else {$_.Value}}}
-    $PIData  = ProcessDataset -Dataset $PIData -Round $Round
+        # Process data
+        $PIData  = $PIData | Select-Object StreamId, Timestamp, @{Name="Value"; Expression={If ($_.Value.GetType() -eq [OSIsoft.PI.Net.EventState]) {$_.Value.get_StateSet()} else {$_.Value}}}
+        $PIData  = ProcessDataset -Dataset $PIData -Round $Round
 
-    # Append ADH data to file
-    Write-Output "Outputing ADH data to file"
-    $ADHData | Export-Csv -Path .\adh_data.csv -NoTypeInformation -Append
+        # Append ADH data to file
+        Write-Output "Outputing ADH data to file"
+        $ADHData | Export-Csv -Path (".\adh_data." + $FileSuffix + ".csv") -NoTypeInformation -Append
 
-    # Append PI data to file
-    Write-Output "Outputing PI data to file"
-    $PIData | Export-Csv -Path .\pi_data.csv  -NoTypeInformation -Append
+        # Append PI data to file
+        Write-Output "Outputing PI data to file"
+        $PIData | Export-Csv -Path (".\pi_data." + $FileSuffix + ".csv")  -NoTypeInformation -Append
+    }
 }
 
 
