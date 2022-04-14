@@ -52,11 +52,11 @@ Function ProcessDataset($Dataset, $Round) {
 # Create connection to PI Data Archive
 Write-Output "Connecting to PI Data Archive"
 if ($null -eq $Appsettings.Username) {
-    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -OperationTimeout $Appsettings.DATimeout
 } else {
     $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Appsettings.Username, $Password
-    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential -OperationTimeout $Appsettings.DATimeout
 }
 
 # Create an auth header
@@ -82,7 +82,7 @@ foreach ($PointId in $Appsettings.PointIds) {
     $ADHData = @()
     $ContinuationToken = ""
     Do {
-        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $AuthHeader -UseBasicParsing
+        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $AuthHeader -UseBasicParsing -TimeoutSec $Appsettings.ADHTimeout
         $RequestContent = $TenantRequest.Content | ConvertFrom-Json
 
         $ADHData += $RequestContent.Results
