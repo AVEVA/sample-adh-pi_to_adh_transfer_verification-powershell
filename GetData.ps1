@@ -59,10 +59,11 @@ if ($null -eq $Appsettings.Username) {
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential -OperationTimeout $Appsettings.DATimeout
 }
 
-# Create an auth header
-Write-Output "Retrieving token"
-$AuthHeader = @{
-    Authorization = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret)
+# Create request headers
+Write-Output "Creating headers and retrieving token"
+$RequestHeaders = @{
+    "Authorization" = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
+    "Request-Timeout" = $Appsettings.ADHTimeout
 }
 
 # Collect data for each Id
@@ -82,7 +83,7 @@ foreach ($PointId in $Appsettings.PointIds) {
     $ADHData = @()
     $ContinuationToken = ""
     Do {
-        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $AuthHeader -UseBasicParsing -TimeoutSec $Appsettings.ADHTimeout
+        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $RequestHeaders -UseBasicParsing -TimeoutSec $Appsettings.ADHTimeout
         $RequestContent = $TenantRequest.Content | ConvertFrom-Json
 
         $ADHData += $RequestContent.Results
