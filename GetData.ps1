@@ -52,6 +52,8 @@ Function ProcessDataset($Dataset, $Round) {
 # Create connection to PI Data Archive
 Write-Output "Connecting to PI Data Archive"
 if ($null -eq $Appsettings.Username) {
+    # Note: if you are running into connection timeouts when first connecting to the Data Archive, the OpenTimeout property can be used to extend the timeout.
+    # See https://docs.osisoft.com/bundle/pi-powershell/page/html/T_OSIsoft_PowerShell_ConnectPIDataArchive.htm for more information.
     $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -OperationTimeout $Appsettings.DATimeout
 } else {
     $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
