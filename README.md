@@ -44,6 +44,8 @@ AVEVA Data Hub is secured by obtaining tokens from its identity endpoint. Client
     "StartIndex": "2022-03-12T00:00:00Z",                                        // Timestamp to start pulling data at in ISO 8601 format
     "EndIndex": "2022-03-15T00:00:00Z",                                          // Timestamp to stop pulling data at in ISO 8601 format
     "DataArchiveAlias": "PLACEHOLDER_REPLACE_WITH_DATA_ARCHIVE_ALIAS_OPTIONAL",  // Optional parameter used if the server name in your Stream Ids is different than the DataArchiveName
+    "DATimeout": "00:00:60",                                                     // Timeout used when querying data from Data Archive in the form "hh:mm:ss"
+    "ADHTimeout": 60,                                                            // Timeout used when querying data from AVEVA Data Hub in seconds
     "Username": "TEST_ONLY",                                                     // Username to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
     "Password": "TEST_ONLY"                                                      // Password to connect to the PI Data Archive with for testing purposes only. If removed or set to null, the credentials of the user running the script are used.
 }

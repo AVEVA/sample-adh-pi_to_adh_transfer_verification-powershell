@@ -52,17 +52,20 @@ Function ProcessDataset($Dataset, $Round) {
 # Create connection to PI Data Archive
 Write-Output "Connecting to PI Data Archive"
 if ($null -eq $Appsettings.Username) {
-    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName
+    # Note: if you are running into connection timeouts when first connecting to the Data Archive, the OpenTimeout property can be used to extend the timeout.
+    # See https://docs.osisoft.com/bundle/pi-powershell/page/html/T_OSIsoft_PowerShell_ConnectPIDataArchive.htm for more information.
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -OperationTimeout $Appsettings.DATimeout
 } else {
     $Password = ConvertTo-SecureString -String $Appsettings.Password -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Appsettings.Username, $Password
-    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential
+    $Con = Connect-PIDataArchive -PIDataArchiveMachineName $Appsettings.DataArchiveName -WindowsCredential $Credential -OperationTimeout $Appsettings.DATimeout
 }
 
-# Create an auth header
-Write-Output "Retrieving token"
-$AuthHeader = @{
-    Authorization = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret)
+# Create request headers
+Write-Output "Creating headers and retrieving token"
+$RequestHeaders = @{
+    "Authorization" = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
+    "Request-Timeout" = $Appsettings.ADHTimeout
 }
 
 # Collect data for each Id
@@ -82,7 +85,7 @@ foreach ($PointId in $Appsettings.PointIds) {
     $ADHData = @()
     $ContinuationToken = ""
     Do {
-        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $AuthHeader -UseBasicParsing
+        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $RequestHeaders -UseBasicParsing -TimeoutSec $Appsettings.ADHTimeout
         $RequestContent = $TenantRequest.Content | ConvertFrom-Json
 
         $ADHData += $RequestContent.Results
