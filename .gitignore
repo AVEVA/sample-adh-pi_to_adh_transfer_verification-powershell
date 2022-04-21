@@ -1,0 +1,6 @@
+# Credential Config Files
+product-readiness.*
+config.ini
+appsettings.json
+adh_data.*.csv
+pi_data.*.csv
