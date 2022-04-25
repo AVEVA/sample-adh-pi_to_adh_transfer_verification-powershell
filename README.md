@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
   
-[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/osisoft.sample-adh-pi_to_adh_transfer_verification-powershell?repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=refs%2Fpull%2F1%2Fmerge)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=4668&repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=refs%2Fpull%2F1%2Fmerge)
+[![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status/product-readiness/ADH/osisoft.sample-adh-pi_to_adh_transfer_verification-powershell?repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=4668&repoName=osisoft%2Fsample-adh-pi_to_adh_transfer_verification-powershell&branchName=main)
 
 Developed against PowerShell 5.1
 
