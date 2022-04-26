@@ -17,7 +17,7 @@ Developed against PowerShell 5.1
 
 ## About this sample
 
-This sample can be used to compare data stored in a PI Data Archive to data writen to AVEVA Data Hub through the PI to AVEVA Data Hub agent. This can be used to easily confirm all intended data was sent successfully by the PI to ADH agent.   
+This sample can be used to compare data stored in a PI Data Archive to data written to AVEVA Data Hub through the PI to AVEVA Data Hub agent and easily confirm all intended data was sent successfully by the PI to Data Hub agent.   
 
 The sample retrieves data between the StartIndex and EndIndex for the Stream with StreamId and PI Point with PointId specified in [appsettings.json](appsettings.placeholder.json). The data is then written to csv files adh_data.csv and pi_data.csv respectively. If the data is of type float, the application rounds the data to three decimal places to account for the difference in how the two datasources format floating point data. The function used to pull data from the PI Data Archive uses a count equal to the number of events retruned from ADH to ensure that missing snapshot data does not give the appearance of a dropped event. When compression is enabled on a PI Point, the PI to ADH agent only sends archived data.  
 
