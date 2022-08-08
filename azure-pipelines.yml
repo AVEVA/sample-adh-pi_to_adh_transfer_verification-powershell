@@ -39,6 +39,7 @@ variables:
 
 jobs:
   - job: Tests
+    condition: ne(variables['Build.Reason'], 'Schedule')
     strategy:
       matrix:
         windows:
