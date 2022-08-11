@@ -37,15 +37,19 @@ variables:
   - name: analysisProject
     value: sample-adh-pi_to_adh_transfer_verification-powershell
 
+parameters:
+  - name: pool
+    default: 00-OSIManaged-Containers
+  - name: containerDemands
+    type: object
+    default: ['Agent.OS -equals Windows_NT']
+
 jobs:
   - job: Tests
-    strategy:
-      matrix:
-        windows:
-          agentOS: Windows_NT
+    condition: ne(variables['Build.Reason'], 'Schedule')
     pool:
-      name: 00-OSIManaged-Containers
-      demands: Agent.OS -equals $(agentOS)
+      name: ${{ parameters.pool }}
+      demands: ${{ parameters.containerDemands }}
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
@@ -83,8 +87,8 @@ jobs:
         
   - job: Code_Analysis
     pool:
-      name: 00-OSIManaged-Containers
-      demands: Agent.OS -equals Windows_NT
+      name: ${{ parameters.pool }}
+      demands: ${{ parameters.containerDemands }}
     steps:
       - powershell: Install-Module -Name PSScriptAnalyzer -Force
         displayName: Install code analyzer
