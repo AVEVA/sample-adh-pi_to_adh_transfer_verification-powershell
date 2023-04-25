@@ -10,7 +10,7 @@ Developed against PowerShell 5.1
 
 - PowerShell 5.1+
 - PowerShell Tools for the PI System (Included with the PI System Management Tools 2015 and later)
-- Register a [Client-Credentials Client](https://datahub.connect.aveva/clients) in your AVEVA Data Hub tenant and create a client secret to use in the configuration of this sample. ([Video Walkthrough](https://www.youtube.com/watch?v=JPWy0ZX9niU))
+- Register a [Client-Credentials Client](https://datahub.connect.aveva.com/clients) in your AVEVA Data Hub tenant and create a client secret to use in the configuration of this sample. ([Video Walkthrough](https://www.youtube.com/watch?v=JPWy0ZX9niU))
   - __NOTE__: By default, this sample only requires the `Tenant Member` role or a role with read access to the stream specified in [appsettings.json](appsettings.placeholder.json) to run successfully 
     - see: ['Authorization Allowed for these roles' in the documentation](https://docs.osisoft.com/bundle/ocs/page/api-reference/tenant/tenant-tenants.html#get-tenant) 
   - It is strongly advised to not elevate the permissions of a client beyond what is necessary.
