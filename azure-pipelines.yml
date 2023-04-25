@@ -52,7 +52,7 @@ jobs:
       demands: ${{ parameters.containerDemands }}
     variables:
       - name: PointIds
-        value: 11009
+        value: 2
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
