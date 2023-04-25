@@ -51,7 +51,7 @@ jobs:
       name: ${{ parameters.pool }}
       demands: ${{ parameters.containerDemands }}
     variables:
-      - name: PointIds.0
+      - name: PointIds
         value: 11009
     steps:
       - checkout: self
