@@ -51,8 +51,8 @@ jobs:
       name: ${{ parameters.pool }}
       demands: ${{ parameters.containerDemands }}
     variables:
-      - name: PointIds
-        value: [2]
+      - name: PointIds.0
+        value: 11009
     steps:
       - checkout: self
       - checkout: OpsGuildPipelineTools
