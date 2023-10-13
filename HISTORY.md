@@ -1,5 +1,9 @@
 # Version History
 
+## 1.0.3 / 2023-10-13
+
+- Migrate Pipelines
+
 ## 1.0.2 / 2023-04-25
 
 - Update broken clients link
