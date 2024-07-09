@@ -2,5 +2,5 @@
 product-readiness.*
 config.ini
 appsettings.json
-adh_data.*.csv
+cds_data.*.csv
 pi_data.*.csv

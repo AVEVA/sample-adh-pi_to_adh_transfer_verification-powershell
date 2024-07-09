@@ -11,7 +11,7 @@ $NumDigits = 6
 # A list of types that need to be rounded
 $RoundedTypes = "Float16", "Float32", "Float64"
 
-Function Get-ADHToken($Resource, $ClientId, $ClientSecret) {
+Function Get-CdsToken($Resource, $ClientId, $ClientSecret) {
     # Get the authentication endpoint from the discovery URL
     $DiscoveryUrlRequest = Invoke-WebRequest -Uri ($Resource + "/identity/.well-known/openid-configuration") -Method Get -UseBasicParsing
     $DiscoveryBody = $DiscoveryUrlRequest.Content | ConvertFrom-Json
@@ -64,8 +64,8 @@ if ($null -eq $Appsettings.Username) {
 # Create request headers
 Write-Output "Creating headers and retrieving token"
 $RequestHeaders = @{
-    "Authorization" = "Bearer " + (Get-ADHToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
-    "Request-Timeout" = $Appsettings.ADHTimeout
+    "Authorization" = "Bearer " + (Get-CdsToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
+    "Request-Timeout" = $Appsettings.CdsTimeout
 }
 
 # Collect data for each Id
@@ -75,42 +75,42 @@ foreach ($PointId in $Appsettings.PointIds) {
     $PIpoint = Get-PIPoint -ID $PointId -Attributes pointtype -Connection $Con
     $Round = $RoundedTypes -contains $PIpoint.Attributes.pointtype
 
-    # Retrieve data from ADH
+    # Retrieve data from Cds
     # Note: the maximum number of events returned by an SDS data call is 250,000. However, we are using paginated data calls to get many more events over multiple calls.
     # See https://docs.osisoft.com/bundle/data-hub/page/developer-guide/sequential-data-store-dev/sds-read-data.html for more information.
-    Write-Output "Retrieving data from ADH"
+    Write-Output "Retrieving data from Cds"
     $BaseUrl = $Appsettings.Resource + "/api/" + $Appsettings.ApiVersion + "/Tenants/" + $Appsettings.TenantId + "/Namespaces/" + $Appsettings.NamespaceId
     $StreamId = If ($null -eq $Appsettings.DataArchiveAlias) {"PI_" + $Appsettings.DataArchiveName + "_" + $PointId} Else {"PI_" + $Appsettings.DataArchiveAlias + "_" + $PointId}
     $StreamUrl = $BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex + "&count=250000&continuationToken="
-    $ADHData = @()
+    $CdsData = @()
     $ContinuationToken = ""
     Do {
-        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $RequestHeaders -UseBasicParsing -TimeoutSec $Appsettings.ADHTimeout
+        $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $RequestHeaders -UseBasicParsing -TimeoutSec $Appsettings.CdsTimeout
         $RequestContent = $TenantRequest.Content | ConvertFrom-Json
 
-        $ADHData += $RequestContent.Results
+        $CdsData += $RequestContent.Results
         $ContinuationToken = $RequestContent.ContinuationToken
     } While ($null -ne $ContinuationToken)
 
     # Continue if any data was retrieved
-    if($ADHData.Count -gt 0) {
+    if($CdsData.Count -gt 0) {
         # Process data
-        $ADHData = $ADHData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
-        $ADHData = ProcessDataset -Dataset $ADHData -Round $Round
+        $CdsData = $CdsData | Select-Object @{Name="StreamId"; Expression={$StreamId}}, Timestamp, Value
+        $CdsData = ProcessDataset -Dataset $CdsData -Round $Round
 
         # Retrieve data from PI Server
         # Note: instead of using the EndIndex, the count is used to avoid differences due to snapshot data.
         # See the README for more information.
         Write-Output "Retrieving data from PI Data Archive"
-        $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $ADHData.Count
+        $PIData = Get-PIValue -PointId $PointId -Connection $Con -StartTime $Appsettings.StartIndex -Count $CdsData.Count
 
         # Process data
         $PIData  = $PIData | Select-Object StreamId, Timestamp, @{Name="Value"; Expression={If ($_.Value.GetType() -eq [OSIsoft.PI.Net.EventState]) {$_.Value.get_StateSet()} else {$_.Value}}}
         $PIData  = ProcessDataset -Dataset $PIData -Round $Round
 
-        # Append ADH data to file
-        Write-Output "Outputing ADH data to file"
-        $ADHData | Export-Csv -Path (".\adh_data." + $FileSuffix + ".csv") -NoTypeInformation -Append
+        # Append Cds data to file
+        Write-Output "Outputing Cds data to file"
+        $CdsData | Export-Csv -Path (".\cds_data." + $FileSuffix + ".csv") -NoTypeInformation -Append
 
         # Append PI data to file
         Write-Output "Outputing PI data to file"
