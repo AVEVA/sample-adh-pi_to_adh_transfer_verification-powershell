@@ -11,9 +11,9 @@ $NumDigits = 6
 # A list of types that need to be rounded
 $RoundedTypes = "Float16", "Float32", "Float64"
 
-Function Get-CdsToken($Resource, $ClientId, $ClientSecret) {
+Function Get-CdsToken($Account, $ClientId, $ClientSecret) {
     # Get the authentication endpoint from the discovery URL
-    $DiscoveryUrlRequest = Invoke-WebRequest -Uri ($Resource + "/identity/.well-known/openid-configuration") -Method Get -UseBasicParsing
+    $DiscoveryUrlRequest = Invoke-WebRequest -Uri ("https://identity.platform.connect.aveva.com/account/" + $Account + "/authentication/.well-known/openid-configuration") -Method Get -UseBasicParsing
     $DiscoveryBody = $DiscoveryUrlRequest.Content | ConvertFrom-Json
     $TokenUrl = $DiscoveryBody.token_endpoint
 
@@ -22,6 +22,7 @@ Function Get-CdsToken($Resource, $ClientId, $ClientSecret) {
         client_id = $ClientId
         client_secret = $ClientSecret
         grant_type = "client_credentials"
+        scope = "api"
     }
 
     $TokenRequest = Invoke-WebRequest -Uri $TokenUrl -Body $TokenForm -Method Post -ContentType "application/x-www-form-urlencoded" -UseBasicParsing
@@ -64,7 +65,7 @@ if ($null -eq $Appsettings.Username) {
 # Create request headers
 Write-Output "Creating headers and retrieving token"
 $RequestHeaders = @{
-    "Authorization" = "Bearer " + (Get-CdsToken -Resource $Appsettings.Resource -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
+    "Authorization" = "Bearer " + (Get-CdsToken -Account $Appsettings.TenantId -ClientId $Appsettings.ClientId -ClientSecret $Appsettings.ClientSecret);
     "Request-Timeout" = $Appsettings.CdsTimeout
 }
 
@@ -75,20 +76,21 @@ foreach ($PointId in $Appsettings.PointIds) {
     $PIpoint = Get-PIPoint -ID $PointId -Attributes pointtype -Connection $Con
     $Round = $RoundedTypes -contains $PIpoint.Attributes.pointtype
 
+    #api/account/cee3a3fd-aeb2-4950-80f5-4b72c77322b1/sds/WindtopiaStreams/v2/Streams/PIWindtopia_27857
     # Retrieve data from Cds
     # Note: the maximum number of events returned by an SDS data call is 250,000. However, we are using paginated data calls to get many more events over multiple calls.
     # See https://docs.osisoft.com/bundle/data-hub/page/developer-guide/sequential-data-store-dev/sds-read-data.html for more information.
     Write-Output "Retrieving data from Cds"
-    $BaseUrl = $Appsettings.Resource + "/api/" + $Appsettings.ApiVersion + "/Tenants/" + $Appsettings.TenantId + "/Namespaces/" + $Appsettings.NamespaceId
+    $BaseUrl = $Appsettings.Resource + "/api/account/" + $Appsettings.TenantId + "/sds/" + $Appsettings.SdsId
     $StreamId = If ($null -eq $Appsettings.DataArchiveAlias) {"PI_" + $Appsettings.DataArchiveName + "_" + $PointId} Else {"PI_" + $Appsettings.DataArchiveAlias + "_" + $PointId}
-    $StreamUrl = $BaseUrl + "/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex + "&count=250000&continuationToken="
+    $StreamUrl = $BaseUrl + "/v2/Streams/" + $StreamId + "/Data?startIndex=" + $Appsettings.StartIndex + "&endIndex=" + $Appsettings.EndIndex + "&count=250000&continuationToken="
     $CdsData = @()
     $ContinuationToken = ""
     Do {
         $TenantRequest = Invoke-WebRequest -Uri ($StreamUrl + $ContinuationToken) -Method Get -Headers $RequestHeaders -UseBasicParsing -TimeoutSec $Appsettings.CdsTimeout
         $RequestContent = $TenantRequest.Content | ConvertFrom-Json
 
-        $CdsData += $RequestContent.Results
+        $CdsData += $RequestContent.items
         $ContinuationToken = $RequestContent.ContinuationToken
     } While ($null -ne $ContinuationToken)
 
